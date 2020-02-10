@@ -1,0 +1,31 @@
+stages:
+   - build
+   - deploy
+
+# build stage
+build_app:
+   image: node:alpine
+   stage: build
+   only:
+      - master
+   script:
+      - yarn install
+      - yarn build
+   cache:
+     paths:
+       - node_modules/
+   artifacts:
+      paths:
+         # build folder
+         - build/
+      expire_in: 1 hour
+
+# production stage
+production:
+   image: python:alpine
+   stage: deploy
+   only:
+      - master
+   script:
+      - pip install awscli
+      - aws s3 sync ./build s3://YOUR_BUCKET_NAME
